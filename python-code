@@ -1,0 +1,93 @@
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+import time
+import getpass
+
+class InstagramBot:
+    def __init__(self,username,password):
+        self.username = username 
+        self.password = password
+        self.bot = webdriver.Chrome(executable_path='./chromedriver.exe')#Path to Chromedriver
+
+    def login(self):
+        bot = self.bot
+        bot.get('https://www.instagram.com/accounts/login')
+        time.sleep(3)
+        bot.find_element_by_name('username').send_keys(self.username)
+        bot.find_element_by_name('password').send_keys(self.password + Keys.RETURN)
+        time.sleep(3)
+
+
+    def searchHashtag(self,hashtag):
+        bot = self.bot
+        bot.get('https://www.instagram.com/explore/tags/'+hashtag)
+
+    def likePhotos(self,amount):
+        bot = self.bot
+        time.sleep(1)
+        bot.find_element_by_class_name('v1Nh3').click()#Like element class name
+        sleeper = 0
+        if int(amount) <= 340:
+            sleeper = (340/(int(amount)))+11
+            if sleeper >= 11:
+                sleeper = 11
+        else:
+            sleeper = 2
+        i = 0
+        j = 0
+        f = 0
+        over = 0
+        while i < int(amount):
+            time.sleep(sleeper)
+            try:
+                bot.find_element_by_class_name('fr66n').click()
+                if follow == 'Y':
+                    if over == 0:
+                        try:
+                            bot.find_element_by_xpath('/html/body/div[4]/div[2]/div/article/header/div[2]/div[1]/div[2]/button').click()
+                            try:
+                                bot.find_element_by_xpath('/html/body/div[5]/div/div/div[2]/button[2]').click()
+                                over = 1
+                            except:
+                                time.sleep(0)
+                                over = 0
+                                f += 1
+                        except:
+                            time.sleep(0)
+                time.sleep(2)
+                try:
+                    bot.find_element_by_xpath('/html/body/div[5]/div/div/div[3]/button[2]').click()
+                except:
+                    time.sleep(0)
+                bot.find_element_by_class_name('coreSpriteRightPaginationArrow').click()
+                i += 1
+            except:
+                time.sleep(3)
+                try:
+                    bot.find_element_by_class_name('coreSpriteRightPaginationArrow').click()
+                    print('Skipped')
+                    j += 1
+                except:
+                    try:
+                        time.sleep(10)
+                        bot.find_element_by_class_name('coreSpriteRightPaginationArrow').click()
+                        print('Skipped')
+                        j += 1
+                    except:
+                        print('Error! Force stop.')
+                        break
+            
+        bot.get('https://www.instagram.com/'+self.username)
+        print(str(i)+' photos liked')
+        print(str(f)+' accounts followed')
+        print(str(j)+' photos skipped')
+
+user = input('Username: ')
+psw = getpass.getpass(prompt='Password(will not show): ')
+hstg = input('Hashtag: #')
+nLikes = input('Nr of photos to like: ')
+follow = input('FOLLOW too?(Y/N): ')
+insta = InstagramBot(user,psw)
+insta.login()
+insta.searchHashtag(hstg)
+insta.likePhotos(nLikes)
